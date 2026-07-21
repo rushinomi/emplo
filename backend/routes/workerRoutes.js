@@ -1,22 +1,31 @@
 const express = require('express');
 const router = express.Router();
+const verhoeff = require('verhoeff');
 const Worker = require('../models/Worker');
 
-// @route   GET /api/workers
-// @desc    Get all workers
+function isValidIdFormat(numberString) {
+  return /^\d{12}$/.test(numberString) && verhoeff.validate(numberString);
+}
+
 router.get('/', async (req, res) => {
   try {
-    const workers = await Worker.find();
+    const workers = await Worker.find().sort({ createdAt: -1 });
+    console.log(`[GET /api/workers] Successfully fetched ${workers.length} workers.`);
     res.json(workers);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('[GET /api/workers ERROR]:', err.message);
+    res.status(500).json({ message: 'Server error while fetching workers: ' + err.message });
   }
 });
 
-// @route   POST /api/workers/register
-// @desc    Register a new worker (after verification)
 router.post('/register', async (req, res) => {
-  const { name, job, wage, hours, location, phone, isVerified } = req.body;
+  const { name, job, wage, hours, location, phone, idNumber } = req.body;
+
+  if (!idNumber || !isValidIdFormat(idNumber)) {
+    return res.status(400).json({ 
+      message: 'Invalid 12-digit ID number format or checksum. Registration failed.' 
+    });
+  }
 
   try {
     const newWorker = new Worker({
@@ -26,57 +35,17 @@ router.post('/register', async (req, res) => {
       hours,
       location,
       phone,
-      isVerified: isVerified || false
+      idNumber,
+      isVerified: true
     });
 
     const savedWorker = await newWorker.save();
+    console.log(`[POST /register SUCCESS] Created worker ID: ${savedWorker._id}`);
     res.status(201).json(savedWorker);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('[POST /register ERROR]:', err.message);
+    res.status(400).json({ message: 'Failed to register worker: ' + err.message });
   }
 });
 
 module.exports = router;
-// const express = require('express');
-// const router = express.Router();
-// const Worker = require('../models/Worker');
-
-// // Get all workers with query filters
-// router.get('/', async (req, res) => {
-//   try {
-//     const { job, maxWage, available } = req.query;
-//     let query = {};
-
-//     if (job) query.job = job;
-//     if (maxWage) query.wage = { $lte: Number(maxWage) };
-//     if (available === 'true') query.isBusy = false;
-
-//     const workers = await Worker.find(query);
-//     res.json(workers);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// // Leave a rating and feedback
-// router.post('/:id/review', async (req, res) => {
-//   try {
-//     const { user, text, stars } = req.body;
-//     const worker = await Worker.findById(req.id);
-    
-//     if (!worker) return res.status(404).json({ message: 'Not found' });
-
-//     worker.reviews.push({ user, text, stars });
-    
-//     // Recalculate average rating
-//     const total = worker.reviews.reduce((acc, item) => item.stars + acc, 0);
-//     worker.rating = total / worker.reviews.length;
-
-//     await worker.save();
-//     res.json(worker);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// module.exports = router;

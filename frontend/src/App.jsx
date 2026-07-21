@@ -1,27 +1,111 @@
 import { useState, useEffect } from 'react';
+import verhoeff from 'verhoeff';
+// Language Translations Dictionary
+const translations = {
+  en: {
+    title: 'Wage Worker Directory',
+    subtitle: 'Find daily wage workers or register as a verified worker',
+    regTitle: 'Worker Registration',
+    fullName: 'Full Name',
+    jobPlaceholder: 'Job/Skill (e.g. Plumber, Mason)',
+    dailyWage: 'Daily Wage (₹)',
+    locationPlaceholder: 'Location/City (e.g. Hyderabad)',
+    workingHours: 'Working Hours (e.g. 8 AM - 5 PM)',
+    phone: 'Phone Number',
+    idVerification: 'Identity Verification',
+    enterId: 'Enter 12-digit ID Number',
+    verify: 'Verify',
+    verifying: 'Verifying...',
+    verified: 'Verified ✓',
+    idNotice: 'Verification status will be displayed on your profile card.',
+    completeReg: 'Complete Registration',
+    availableWorkers: 'Available Workers',
+    searchPlaceholder: 'Search by name, job, or location...',
+    loading: 'Loading workers...',
+    noWorkers: 'No matching workers found.',
+    verifiedWorker: 'Verified Worker ✓',
+    perDay: '/day',
+    notSpecified: 'Not Specified'
+  },
+  hi: {
+    title: 'दिहाड़ी मजदूर निर्देशिका',
+    subtitle: 'दैनिक वेतन भोगी कार्यकर्ताओं को खोजें या एक सत्यापित कार्यकर्ता के रूप में पंजीकरण करें',
+    regTitle: 'श्रमिक पंजीकरण',
+    fullName: 'पूरा नाम',
+    jobPlaceholder: 'कार्य/कौशल (जैसे नलसाज, राजमिस्त्री)',
+    dailyWage: 'दैनिक मजदूरी (₹)',
+    locationPlaceholder: 'स्थान/शहर (जैसे हैदराबाद)',
+    workingHours: 'कार्य के घंटे (जैसे सुबह 8 - शाम 5)',
+    phone: 'फोन नंबर',
+    idVerification: 'पहचान सत्यापन',
+    enterId: '12-अंकों का आईडी नंबर दर्ज करें',
+    verify: 'सत्यापित करें',
+    verifying: 'सत्यापित हो रहा है...',
+    verified: 'सत्यापित ✓',
+    idNotice: 'सत्यापन स्थिति आपके प्रोफाइल कार्ड पर प्रदर्शित होगी।',
+    completeReg: 'पंजीकरण पूरा करें',
+    availableWorkers: 'उपलब्ध श्रमिक',
+    searchPlaceholder: 'नाम, काम या स्थान के आधार पर खोजें...',
+    loading: 'श्रमिक लोड हो रहे हैं...',
+    noWorkers: 'कोई मेल खाते श्रमिक नहीं मिले।',
+    verifiedWorker: 'सत्यापित श्रमिक ✓',
+    perDay: '/दिन',
+    notSpecified: 'निर्दिष्ट नहीं'
+  },
+  te: {
+    title: 'దినసరి కూలీల డైరెక్టరీ',
+    subtitle: 'దినసరి వేతన కార్మికులను కనుగొనండి లేదా ధృవీకరించబడిన కార్మికుడిగా నమోదు చేసుకోండి',
+    regTitle: 'కార్మికుల నమోదు',
+    fullName: 'పూర్తి పేరు',
+    jobPlaceholder: 'పని/నైపుణ్యం (ఉదా. ప్లంబర్, మేస్త్రీ)',
+    dailyWage: 'దినసరి వేతనం (₹)',
+    locationPlaceholder: 'ప్రాంతం/నగరం (ఉదా. హైదరాబాద్)',
+    workingHours: 'పని వేళలు (ఉదా. ఉదయం 8 - సాయంత్రం 5)',
+    phone: 'ఫోన్ నంబర్',
+    idVerification: 'గుర్తింపు సరిచూడటం',
+    enterId: '12-అంకెల ID నంబర్‌ను నమోదు చేయండి',
+    verify: 'సరిచూడు',
+    verifying: 'పరిశీలిస్తోంది...',
+    verified: 'సరిచూడబడింది ✓',
+    idNotice: 'సరిచూసిన స్థితి మీ ప్రొఫైల్ కార్డ్‌లో చూపబడుతుంది.',
+    completeReg: 'నమోదు పూర్తి చేయండి',
+    availableWorkers: 'అందుబాటులో ఉన్న కార్మికులు',
+    searchPlaceholder: 'పేరు, పని లేదా ప్రాంతం ద్వారా వెతకండి...',
+    loading: 'కార్మికుల వివరాలు లోడ్ అవుతున్నాయి...',
+    noWorkers: 'ఏ కార్మికులు కనుగొనబడలేదు.',
+    verifiedWorker: 'ధృవీకరించబడిన కార్మికుడు ✓',
+    perDay: '/రోజు',
+    notSpecified: 'పేర్కొనలేదు'
+  }
+};
 
+const isValidIdFormat = (numberString) => {
+  return /^\d{12}$/.test(numberString) && verhoeff.validate(numberString);
+};
 function App() {
+  const [lang, setLang] = useState('en');
   const [workers, setWorkers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Active language texts
+  const t = translations[lang];
 
   // Registration Form State
   const [formData, setFormData] = useState({
     name: '',
     job: '',
     wage: '',
-    hours: '8 AM - 5 PM',
+    hours: '',
     location: '',
     phone: '',
-    aadharNumber: ''
+    idNumber: ''
   });
 
-  // Verification process state
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('');
 
-  // Fetch workers from backend
   const fetchWorkers = () => {
     fetch('http://localhost:5000/api/workers')
       .then((res) => res.json())
@@ -39,29 +123,35 @@ function App() {
     fetchWorkers();
   }, []);
 
-  // Handle Form Inputs
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Simulate Verification Step
-  const handleAadharVerify = (e) => {
+  const handleIdVerify = (e) => {
     e.preventDefault();
-    if (!formData.aadharNumber || formData.aadharNumber.length !== 12) {
-      alert('Please enter a valid 12-digit Aadhaar number.');
+
+    // 1. Basic length & digit check
+    if (!formData.idNumber || formData.idNumber.length !== 12) {
+      alert('Please enter a valid 12-digit ID number.');
       return;
     }
 
+    // 2. Verhoeff Algorithm Check (Catches fake / random 12-digit numbers)
+    if (!isValidIdFormat(formData.idNumber)) {
+      alert('Invalid ID number format or checksum. Please enter a genuine number.');
+      setIsVerified(false);
+      return;
+    }
+
+    // 3. If valid, proceed with verification
     setIsVerifying(true);
-    // Simulating API verification delay
     setTimeout(() => {
       setIsVerifying(false);
       setIsVerified(true);
       alert('Identity verified successfully!');
-    }, 1500);
+    }, 1200);
   };
 
-  // Submit Worker Registration
   const handleSubmitWorker = (e) => {
     e.preventDefault();
     if (!isVerified) {
@@ -69,6 +159,7 @@ function App() {
       return;
     }
 
+    // 1. Define the payload object here
     const payload = {
       name: formData.name,
       job: formData.job,
@@ -76,9 +167,10 @@ function App() {
       hours: formData.hours,
       location: formData.location,
       phone: formData.phone,
-      isVerified: true
+      idNumber: formData.idNumber // Pass the entered 12-digit string to backend
     };
 
+    // 2. Send the payload to your backend API
     fetch('http://localhost:5000/api/workers/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,46 +184,71 @@ function App() {
             name: '',
             job: '',
             wage: '',
-            hours: '8 AM - 5 PM',
+            hours: '',
             location: '',
             phone: '',
-            aadharNumber: ''
+            idNumber: ''
           });
           setIsVerified(false);
           fetchWorkers(); // Refresh directory list
         } else {
-          setSubmitStatus('Failed to register worker.');
+          return res.json().then((data) => {
+            alert(data.message || 'Failed to register worker.');
+          });
         }
       })
       .catch((err) => console.error('Error registering worker:', err));
   };
 
-  // Filter workers based on search term
   const filteredWorkers = workers.filter((worker) => {
-    const term = search.toLowerCase();
-    return (
-      worker.name?.toLowerCase().includes(term) ||
-      worker.job?.toLowerCase().includes(term) ||
-      worker.location?.toLowerCase().includes(term)
-    );
-  });
+  const term = search.toLowerCase().trim();
+  if (!term) return true; // Show all if search box is empty
+
+  return (
+    (worker.name && worker.name.toLowerCase().includes(term)) ||
+    (worker.job && worker.job.toLowerCase().includes(term)) ||
+    (worker.location && worker.location.toLowerCase().includes(term))
+  );
+});
 
   return (
     <div style={styles.container}>
+      {/* --- HEADER WITH LANGUAGE SELECTOR SIDE-BY-SIDE --- */}
       <header style={styles.header}>
-        <h1 style={styles.title}>Wage Worker Directory</h1>
-        <p style={styles.subtitle}>Find daily wage workers or register as a verified worker</p>
-      </header>
+  <div style={styles.titleRow}>
+    {/* Left empty spacer to balance the grid */}
+    <div></div>
+
+    {/* Center Title */}
+    <h1 style={styles.title}>{t.title}</h1>
+
+    {/* Right-aligned Language Dropdown */}
+    <div style={styles.langSelector}>
+      <label htmlFor="language" style={styles.langLabel}>🌐</label>
+      <select
+        id="language"
+        value={lang}
+        onChange={(e) => setLang(e.target.value)}
+        style={styles.selectInput}
+      >
+        <option value="en">English</option>
+        <option value="hi">हिंदी (Hindi)</option>
+        <option value="te">తెలుగు (Telugu)</option>
+      </select>
+    </div>
+  </div>
+  <p style={styles.subtitle}>{t.subtitle}</p>
+</header>
 
       {/* --- REGISTRATION BLOCK --- */}
       <section style={styles.registrationBlock}>
-        <h2 style={styles.sectionTitle}>Worker Registration</h2>
+        <h2 style={styles.sectionTitle}>{t.regTitle}</h2>
         <form onSubmit={handleSubmitWorker} style={styles.form}>
           <div style={styles.formGroup}>
             <input
               type="text"
               name="name"
-              placeholder="Full Name"
+              placeholder={t.fullName}
               value={formData.name}
               onChange={handleInputChange}
               required
@@ -140,7 +257,7 @@ function App() {
             <input
               type="text"
               name="job"
-              placeholder="Job/Skill (e.g. Plumber, Mason)"
+              placeholder={t.jobPlaceholder}
               value={formData.job}
               onChange={handleInputChange}
               required
@@ -152,7 +269,7 @@ function App() {
             <input
               type="number"
               name="wage"
-              placeholder="Daily Wage (₹)"
+              placeholder={t.dailyWage}
               value={formData.wage}
               onChange={handleInputChange}
               required
@@ -161,7 +278,7 @@ function App() {
             <input
               type="text"
               name="location"
-              placeholder="Location/City (e.g. Hyderabad)"
+              placeholder={t.locationPlaceholder}
               value={formData.location}
               onChange={handleInputChange}
               required
@@ -173,7 +290,7 @@ function App() {
             <input
               type="text"
               name="hours"
-              placeholder="Working Hours (e.g. 8 AM - 5 PM)"
+              placeholder={t.workingHours}
               value={formData.hours}
               onChange={handleInputChange}
               required
@@ -182,7 +299,7 @@ function App() {
             <input
               type="text"
               name="phone"
-              placeholder="Phone Number"
+              placeholder={t.phone}
               value={formData.phone}
               onChange={handleInputChange}
               required
@@ -190,15 +307,14 @@ function App() {
             />
           </div>
 
-          {/* VERIFICATION SECTION */}
           <div style={styles.verificationBox}>
-            <h4>Identity Verification</h4>
+            <h4>{t.idVerification}</h4>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input
                 type="text"
-                name="aadharNumber"
-                placeholder="Enter 12-digit ID Number"
-                value={formData.aadharNumber}
+                name="idNumber"
+                placeholder={t.enterId}
+                value={formData.idNumber}
                 onChange={handleInputChange}
                 maxLength="12"
                 disabled={isVerified}
@@ -206,15 +322,15 @@ function App() {
               />
               <button
                 type="button"
-                onClick={handleAadharVerify}
+                onClick={handleIdVerify}
                 disabled={isVerified || isVerifying}
                 style={isVerified ? styles.verifiedBtn : styles.verifyBtn}
               >
-                {isVerifying ? 'Verifying...' : isVerified ? 'Verified ✓' : 'Verify'}
+                {isVerifying ? t.verifying : isVerified ? t.verified : t.verify}
               </button>
             </div>
             <small style={{ color: '#718096', marginTop: '5px', display: 'block' }}>
-              Verification status will be displayed on your profile card.
+              {t.idNotice}
             </small>
           </div>
 
@@ -227,7 +343,7 @@ function App() {
               cursor: isVerified ? 'pointer' : 'not-allowed'
             }}
           >
-            Complete Registration
+            {t.completeReg}
           </button>
           {submitStatus && <p style={{ textAlign: 'center', color: '#2b6cb0' }}>{submitStatus}</p>}
         </form>
@@ -235,20 +351,19 @@ function App() {
 
       {/* --- DIRECTORY SEARCH BLOCK --- */}
       <section style={{ marginTop: '40px' }}>
-        <h2 style={styles.sectionTitle}>Available Workers</h2>
+        <h2 style={styles.sectionTitle}>{t.availableWorkers}</h2>
         <input
           type="text"
-          placeholder="Search by name, job, or location..."
+          placeholder={t.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ ...styles.input, width: '100%', marginBottom: '20px' }}
         />
 
-        {/* WORKER CARDS GRID */}
         {loading ? (
-          <p style={styles.message}>Loading workers...</p>
+          <p style={styles.message}>{t.loading}</p>
         ) : filteredWorkers.length === 0 ? (
-          <p style={styles.message}>No matching workers found.</p>
+          <p style={styles.message}>{t.noWorkers}</p>
         ) : (
           <div style={styles.grid}>
             {filteredWorkers.map((worker) => (
@@ -256,15 +371,15 @@ function App() {
                 <div style={styles.cardHeader}>
                   <div>
                     <h3 style={styles.name}>{worker.name}</h3>
-                    {worker.isVerified && <span style={styles.verifiedBadge}>Verified Worker ✓</span>}
+                    {worker.isVerified && <span style={styles.verifiedBadge}>{t.verifiedWorker}</span>}
                   </div>
                   <span style={styles.badge}>{worker.job}</span>
                 </div>
                 <div style={styles.cardBody}>
-                  <p><strong>Daily Wage:</strong> ₹{worker.wage}/day</p>
-                  <p><strong>Location:</strong> {worker.location || 'Not Specified'}</p>
-                  <p><strong>Hours:</strong> {worker.hours}</p>
-                  <p><strong>Phone:</strong> {worker.phone}</p>
+                  <p><strong>{t.dailyWage.split(' ')[0]}:</strong> ₹{worker.wage}{t.perDay}</p>
+                  <p><strong>{t.locationPlaceholder.split('/')[0]}:</strong> {worker.location || worker.Location || t.notSpecified}</p>
+                  <p><strong>{t.workingHours.split(' ')[0]}:</strong> {worker.hours}</p>
+                  <p><strong>{t.phone}:</strong> {worker.phone}</p>
                 </div>
               </div>
             ))}
@@ -284,8 +399,36 @@ const styles = {
     color: '#333'
   },
   header: { textAlign: 'center', marginBottom: '30px' },
-  title: { fontSize: '2.2rem', color: '#1a365d', margin: '0 0 10px 0' },
-  subtitle: { color: '#4a5568', margin: 0 },
+  titleRow: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '20px',
+    flexWrap: 'wrap'
+  },
+  title: { fontSize: '2.2rem', color: '#1a365d', margin: 0 },
+  langSelector: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    backgroundColor: '#edf2f7',
+    padding: '6px 12px',
+    borderRadius: '8px',
+    border: '1px solid #cbd5e0'
+  },
+  langLabel: { fontSize: '1.1rem' },
+  selectInput: {
+    padding: '6px 8px',
+    fontSize: '0.9rem',
+    borderRadius: '4px',
+    border: '1px solid #cbd5e0',
+    backgroundColor: '#fff',
+    cursor: 'pointer',
+    outline: 'none',
+    fontWeight: '600',
+    color: '#2d3748'
+  },
+  subtitle: { color: '#4a5568', marginTop: '10px' },
   sectionTitle: { fontSize: '1.5rem', color: '#2d3748', marginBottom: '15px' },
   registrationBlock: {
     backgroundColor: '#f7fafc',
@@ -364,17 +507,12 @@ const styles = {
     fontSize: '0.8rem',
     fontWeight: 'bold'
   },
-  verifiedBadge: {
-    color: '#38a169',
-    fontSize: '0.75rem',
-    fontWeight: 'bold'
-  },
+  verifiedBadge: { color: '#38a169', fontSize: '0.75rem', fontWeight: 'bold' },
   cardBody: { fontSize: '0.9rem', lineHeight: '1.6', color: '#4a5568' },
   message: { textAlign: 'center', fontSize: '1.1rem', color: '#718096', marginTop: '20px' }
 };
 
 export default App;
-// import { useState, useEffect } from 'react';
 
 // function App() {
 //   const [workers, setWorkers] = useState([]);
