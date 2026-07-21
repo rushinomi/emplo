@@ -159,7 +159,7 @@ function App() {
   const [submitStatus, setSubmitStatus] = useState('');
 
   const fetchWorkers = () => {
-    fetch('http://localhost:5000/api/workers')
+    fetch('https://backdata-4leh.onrender.com/api/workers')
       .then((res) => res.json())
       .then((data) => {
         setWorkers(data);
@@ -218,7 +218,7 @@ function App() {
       idNumber: formData.idNumber.trim()
     };
 
-    fetch('http://localhost:5000/api/workers/register', {
+    fetch('https://backdata-4leh.onrender.com/api/workers/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -457,11 +457,11 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px'
   },
-  title: { fontSize: '2.2rem', color: '#1a365d', margin: 0 },
+  title: { fontSize: '2.2rem', color: '#5081c6', margin: 0 },
   langSelector: {
     position:'fixed',
     top: '20px',
-    right: '20px',
+    right: '200px',
     zIndex: 10,
     display: 'flex',
     alignItems: 'center',
