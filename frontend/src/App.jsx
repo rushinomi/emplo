@@ -1,97 +1,149 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import verhoeff from 'verhoeff';
-// Language Translations Dictionary
-const translations = {
-  en: {
-    title: 'Wage Worker Directory',
-    subtitle: 'Find daily wage workers or register as a verified worker',
-    regTitle: 'Worker Registration',
-    fullName: 'Full Name',
-    jobPlaceholder: 'Job/Skill (e.g. Plumber, Mason)',
-    dailyWage: 'Daily Wage (₹)',
-    locationPlaceholder: 'Location/City (e.g. Hyderabad)',
-    workingHours: 'Working Hours (e.g. 8 AM - 5 PM)',
-    phone: 'Phone Number',
-    idVerification: 'Identity Verification',
-    enterId: 'Enter 12-digit ID Number',
-    verify: 'Verify',
-    verifying: 'Verifying...',
-    verified: 'Verified ✓',
-    idNotice: 'Verification status will be displayed on your profile card.',
-    completeReg: 'Complete Registration',
-    availableWorkers: 'Available Workers',
-    searchPlaceholder: 'Search by name, job, or location...',
-    loading: 'Loading workers...',
-    noWorkers: 'No matching workers found.',
-    verifiedWorker: 'Verified Worker ✓',
-    perDay: '/day',
-    notSpecified: 'Not Specified'
-  },
-  hi: {
-    title: 'दिहाड़ी मजदूर निर्देशिका',
-    subtitle: 'दैनिक वेतन भोगी कार्यकर्ताओं को खोजें या एक सत्यापित कार्यकर्ता के रूप में पंजीकरण करें',
-    regTitle: 'श्रमिक पंजीकरण',
-    fullName: 'पूरा नाम',
-    jobPlaceholder: 'कार्य/कौशल (जैसे नलसाज, राजमिस्त्री)',
-    dailyWage: 'दैनिक मजदूरी (₹)',
-    locationPlaceholder: 'स्थान/शहर (जैसे हैदराबाद)',
-    workingHours: 'कार्य के घंटे (जैसे सुबह 8 - शाम 5)',
-    phone: 'फोन नंबर',
-    idVerification: 'पहचान सत्यापन',
-    enterId: '12-अंकों का आईडी नंबर दर्ज करें',
-    verify: 'सत्यापित करें',
-    verifying: 'सत्यापित हो रहा है...',
-    verified: 'सत्यापित ✓',
-    idNotice: 'सत्यापन स्थिति आपके प्रोफाइल कार्ड पर प्रदर्शित होगी।',
-    completeReg: 'पंजीकरण पूरा करें',
-    availableWorkers: 'उपलब्ध श्रमिक',
-    searchPlaceholder: 'नाम, काम या स्थान के आधार पर खोजें...',
-    loading: 'श्रमिक लोड हो रहे हैं...',
-    noWorkers: 'कोई मेल खाते श्रमिक नहीं मिले।',
-    verifiedWorker: 'सत्यापित श्रमिक ✓',
-    perDay: '/दिन',
-    notSpecified: 'निर्दिष्ट नहीं'
-  },
-  te: {
-    title: 'దినసరి కూలీల డైరెక్టరీ',
-    subtitle: 'దినసరి వేతన కార్మికులను కనుగొనండి లేదా ధృవీకరించబడిన కార్మికుడిగా నమోదు చేసుకోండి',
-    regTitle: 'కార్మికుల నమోదు',
-    fullName: 'పూర్తి పేరు',
-    jobPlaceholder: 'పని/నైపుణ్యం (ఉదా. ప్లంబర్, మేస్త్రీ)',
-    dailyWage: 'దినసరి వేతనం (₹)',
-    locationPlaceholder: 'ప్రాంతం/నగరం (ఉదా. హైదరాబాద్)',
-    workingHours: 'పని వేళలు (ఉదా. ఉదయం 8 - సాయంత్రం 5)',
-    phone: 'ఫోన్ నంబర్',
-    idVerification: 'గుర్తింపు సరిచూడటం',
-    enterId: '12-అంకెల ID నంబర్‌ను నమోదు చేయండి',
-    verify: 'సరిచూడు',
-    verifying: 'పరిశీలిస్తోంది...',
-    verified: 'సరిచూడబడింది ✓',
-    idNotice: 'సరిచూసిన స్థితి మీ ప్రొఫైల్ కార్డ్‌లో చూపబడుతుంది.',
-    completeReg: 'నమోదు పూర్తి చేయండి',
-    availableWorkers: 'అందుబాటులో ఉన్న కార్మికులు',
-    searchPlaceholder: 'పేరు, పని లేదా ప్రాంతం ద్వారా వెతకండి...',
-    loading: 'కార్మికుల వివరాలు లోడ్ అవుతున్నాయి...',
-    noWorkers: 'ఏ కార్మికులు కనుగొనబడలేదు.',
-    verifiedWorker: 'ధృవీకరించబడిన కార్మికుడు ✓',
-    perDay: '/రోజు',
-    notSpecified: 'పేర్కొనలేదు'
-  }
-};
 
 const isValidIdFormat = (numberString) => {
   return /^\d{12}$/.test(numberString) && verhoeff.validate(numberString);
 };
+
+const translations = {
+  en: {
+    title: "Labor Connect",
+    subtitle: "Find and Register Skilled Workers Easily",
+    regTitle: "Register New Worker",
+    fullName: "Full Name",
+    jobPlaceholder: "Job / Skill (e.g., Carpenter)",
+    dailyWage: "Daily Wage (₹)",
+    locationPlaceholder: "Location (City / Area)",
+    workingHours: "Working Hours (e.g., 9 AM - 5 PM)",
+    phone: "Phone Number",
+    idVerification: "Identity Verification",
+    enterId: "Enter 12-Digit ID",
+    verify: "Verify ID",
+    verifying: "Verifying...",
+    verified: "Verified ✓",
+    idNotice: "Enter a valid 12-digit number for check.",
+    completeReg: "Complete Registration",
+    availableWorkers: "Available Workers Directory",
+    searchPlaceholder: "Search by name, skill, or location...",
+    loading: "Loading workers...",
+    noWorkers: "No workers found.",
+    verifiedWorker: "Verified Worker",
+    perDay: " / day",
+    notSpecified: "Not Specified",
+    wageLabel: "Wage",
+    locationLabel: "Location",
+    hoursLabel: "Hours",
+    phoneLabel: "Phone"
+  },
+  hi: {
+    title: "लेबर कनेक्ट",
+    subtitle: "कुशल श्रमिकों को आसानी से खोजें और पंजीकृत करें",
+    regTitle: "नया कार्यकर्ता पंजीकृत करें",
+    fullName: "पूरा नाम",
+    jobPlaceholder: "काम / कौशल (जैसे बढ़ई)",
+    dailyWage: "दैनिक मजदूरी (₹)",
+    locationPlaceholder: "स्थान (शहर / क्षेत्र)",
+    workingHours: "कार्य के घंटे (जैसे सुबह 9 - शाम 5)",
+    phone: "फोन नंबर",
+    idVerification: "पहचान सत्यापन",
+    enterId: "12 अंकों का आईडी दर्ज करें",
+    verify: "सत्यापित करें",
+    verifying: "सत्यापित हो रहा है...",
+    verified: "सत्यापित ✓",
+    idNotice: "जांच के लिए वैध 12 अंकों का नंबर दर्ज करें।",
+    completeReg: "पंजीकरण पूरा करें",
+    availableWorkers: "उपलब्ध कार्यकर्ताओं की सूची",
+    searchPlaceholder: "नाम, कौशल या स्थान से खोजें...",
+    loading: "कार्यकर्ताओं को लोड किया जा रहा है...",
+    noWorkers: "कोई कार्यकर्ता नहीं मिला।",
+    verifiedWorker: "सत्यापित कार्यकर्ता",
+    perDay: " / दिन",
+    notSpecified: "निर्दिष्ट नहीं",
+    wageLabel: "मजदूरी",
+    locationLabel: "स्थान",
+    hoursLabel: "घंटे",
+    phoneLabel: "फोन"
+  },
+  te: {
+    title: "లేబర్ కనెక్ట్",
+    subtitle: "నైపుణ్యం కలిగిన కార్మికులను సులభంగా కనుగొనండి మరియు నమోదు చేయండి",
+    regTitle: "కొత్త కార్మికుడిని నమోదు చేయండి",
+    fullName: "పూర్తి పేరు",
+    jobPlaceholder: "పని / నైపుణ్యం (ఉదా. వడ్రంగి)",
+    dailyWage: "రోజువారీ వేతనం (₹)",
+    locationPlaceholder: "ప్రాంతం (నగరం / ఏరియా)",
+    workingHours: "పని వేళలు (ఉదా. ఉదయం 9 - సాయంత్రం 5)",
+    phone: "ఫోన్ నంబర్",
+    idVerification: "గుర్తింపు ధృవీకరణ",
+    enterId: "12 అంకెల ఐడి నమోదు చేయండి",
+    verify: "ధృవీకరించు",
+    verifying: "ధృవీకరిస్తోంది...",
+    verified: "ధృవీకరించబడింది ✓",
+    idNotice: "తనిఖీ కోసం చెల్లుబాటు అయ్యే 12 అంకెల సంఖ్యను నమోదు చేయండి.",
+    completeReg: "రిజిస్ట్రేషన్ పూర్తి చేయండి",
+    availableWorkers: "అందుబాటులో ఉన్న కార్మికుల జాబితా",
+    searchPlaceholder: "పేరు, నైపుణ్యం లేదా ప్రాంతం ద్వారా శోధించండి...",
+    loading: "కార్మికుల వివరాలు లోడ్ అవుతున్నాయి...",
+    noWorkers: "కార్మికులు ఎవరూ కనుగొనబడలేదు.",
+    verifiedWorker: "ధృవీకరించబడిన కార్మికుడు",
+    perDay: " / రోజుకు",
+    notSpecified: "పేర్కొనలేదు",
+    wageLabel: "వేతనం",
+    locationLabel: "ప్రాంతం",
+    hoursLabel: "గంటలు",
+    phoneLabel: "ఫోన్"
+  }
+};
+
+const fetchTranslatedLocation = async (locationText, targetLang) => {
+  if (!locationText) return "";
+  
+  const langMap = { en: 'en', hi: 'hi', te: 'te' };
+  const targetCode = langMap[targetLang] || 'en';
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+        locationText + ', India'
+      )}&format=json&accept-language=${targetCode}&limit=1`
+    );
+    const data = await response.json();
+
+    if (data && data.length > 0) {
+      return data[0].display_name.split(',')[0]; 
+    }
+  } catch (error) {
+    console.error("Error fetching location translation:", error);
+  }
+
+  return locationText; 
+};
+
+const DynamicLocation = ({ locationText, targetLang, defaultText }) => {
+  const [translated, setTranslated] = useState(locationText);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (locationText) {
+      fetchTranslatedLocation(locationText, targetLang).then((res) => {
+        if (isMounted) setTranslated(res);
+      });
+    }
+    return () => { isMounted = false; };
+  }, [locationText, targetLang]);
+
+  if (!locationText) return defaultText;
+  return <span>{translated}</span>;
+};
+
 function App() {
   const [lang, setLang] = useState('en');
   const [workers, setWorkers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Active language texts
-  const t = translations[lang];
+  const t = translations[lang] || translations.en;
 
-  // Registration Form State
   const [formData, setFormData] = useState({
     name: '',
     job: '',
@@ -130,20 +182,17 @@ function App() {
   const handleIdVerify = (e) => {
     e.preventDefault();
 
-    // 1. Basic length & digit check
     if (!formData.idNumber || formData.idNumber.length !== 12) {
       alert('Please enter a valid 12-digit ID number.');
       return;
     }
 
-    // 2. Verhoeff Algorithm Check (Catches fake / random 12-digit numbers)
     if (!isValidIdFormat(formData.idNumber)) {
       alert('Invalid ID number format or checksum. Please enter a genuine number.');
       setIsVerified(false);
       return;
     }
 
-    // 3. If valid, proceed with verification
     setIsVerifying(true);
     setTimeout(() => {
       setIsVerifying(false);
@@ -159,18 +208,16 @@ function App() {
       return;
     }
 
-    // 1. Define the payload object here
     const payload = {
-      name: formData.name,
-      job: formData.job,
-      wage: formData.wage,
-      hours: formData.hours,
-      location: formData.location,
-      phone: formData.phone,
-      idNumber: formData.idNumber // Pass the entered 12-digit string to backend
+      name: formData.name.trim(),
+      job: formData.job.trim(),
+      wage: Number(formData.wage),
+      hours: formData.hours.trim(),
+      location: formData.location.trim(),
+      phone: formData.phone.trim(),
+      idNumber: formData.idNumber.trim()
     };
 
-    // 2. Send the payload to your backend API
     fetch('http://localhost:5000/api/workers/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -179,7 +226,6 @@ function App() {
       .then((res) => {
         if (res.ok) {
           setSubmitStatus('Worker registered successfully!');
-          // Reset Form
           setFormData({
             name: '',
             job: '',
@@ -190,7 +236,7 @@ function App() {
             idNumber: ''
           });
           setIsVerified(false);
-          fetchWorkers(); // Refresh directory list
+          fetchWorkers();
         } else {
           return res.json().then((data) => {
             alert(data.message || 'Failed to register worker.');
@@ -201,46 +247,39 @@ function App() {
   };
 
   const filteredWorkers = workers.filter((worker) => {
-  const term = search.toLowerCase().trim();
-  if (!term) return true; // Show all if search box is empty
+    const term = search.toLowerCase().trim();
+    if (!term) return true;
 
-  return (
-    (worker.name && worker.name.toLowerCase().includes(term)) ||
-    (worker.job && worker.job.toLowerCase().includes(term)) ||
-    (worker.location && worker.location.toLowerCase().includes(term))
-  );
-});
+    return (
+      (worker.name && worker.name.toLowerCase().includes(term)) ||
+      (worker.job && worker.job.toLowerCase().includes(term)) ||
+      (worker.location && worker.location.toLowerCase().includes(term))
+    );
+  });
 
   return (
     <div style={styles.container}>
-      {/* --- HEADER WITH LANGUAGE SELECTOR SIDE-BY-SIDE --- */}
       <header style={styles.header}>
-  <div style={styles.titleRow}>
-    {/* Left empty spacer to balance the grid */}
-    <div></div>
+        <div style={styles.titleRow}>
+          <div></div>
+          <h1 style={styles.title}>{t.title}</h1>
+          <div style={styles.langSelector}>
+            <label htmlFor="language" style={styles.langLabel}>🌐</label>
+            <select
+              id="language"
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              style={styles.selectInput}
+            >
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+            </select>
+          </div>
+        </div>
+        <p style={styles.subtitle}>{t.subtitle}</p>
+      </header>
 
-    {/* Center Title */}
-    <h1 style={styles.title}>{t.title}</h1>
-
-    {/* Right-aligned Language Dropdown */}
-    <div style={styles.langSelector}>
-      <label htmlFor="language" style={styles.langLabel}>🌐</label>
-      <select
-        id="language"
-        value={lang}
-        onChange={(e) => setLang(e.target.value)}
-        style={styles.selectInput}
-      >
-        <option value="en">English</option>
-        <option value="hi">हिंदी (Hindi)</option>
-        <option value="te">తెలుగు (Telugu)</option>
-      </select>
-    </div>
-  </div>
-  <p style={styles.subtitle}>{t.subtitle}</p>
-</header>
-
-      {/* --- REGISTRATION BLOCK --- */}
       <section style={styles.registrationBlock}>
         <h2 style={styles.sectionTitle}>{t.regTitle}</h2>
         <form onSubmit={handleSubmitWorker} style={styles.form}>
@@ -349,7 +388,6 @@ function App() {
         </form>
       </section>
 
-      {/* --- DIRECTORY SEARCH BLOCK --- */}
       <section style={{ marginTop: '40px' }}>
         <h2 style={styles.sectionTitle}>{t.availableWorkers}</h2>
         <input
@@ -367,7 +405,7 @@ function App() {
         ) : (
           <div style={styles.grid}>
             {filteredWorkers.map((worker) => (
-              <div key={worker._id} style={styles.card}>
+              <div key={worker._id || worker.id} style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div>
                     <h3 style={styles.name}>{worker.name}</h3>
@@ -376,10 +414,23 @@ function App() {
                   <span style={styles.badge}>{worker.job}</span>
                 </div>
                 <div style={styles.cardBody}>
-                  <p><strong>{t.dailyWage.split(' ')[0]}:</strong> ₹{worker.wage}{t.perDay}</p>
-                  <p><strong>{t.locationPlaceholder.split('/')[0]}:</strong> {worker.location || worker.Location || t.notSpecified}</p>
-                  <p><strong>{t.workingHours.split(' ')[0]}:</strong> {worker.hours}</p>
-                  <p><strong>{t.phone}:</strong> {worker.phone}</p>
+                  <p>
+                    <strong>{t.wageLabel}:</strong> ₹{worker.wage}{t.perDay}
+                  </p>
+                  <p>
+                    <strong>{t.locationLabel}:</strong>{' '}
+                    <DynamicLocation 
+                      locationText={worker.location} 
+                      targetLang={lang} 
+                      defaultText={t.notSpecified} 
+                    />
+                  </p>
+                  <p>
+                    <strong>{t.hoursLabel}:</strong> {worker.hours}
+                  </p>
+                  <p>
+                    <strong>{t.phoneLabel}:</strong> {worker.phone}
+                  </p>
                 </div>
               </div>
             ))}
@@ -392,6 +443,7 @@ function App() {
 
 const styles = {
   container: {
+    position: 'relative',
     maxWidth: '900px',
     margin: '0 auto',
     padding: '30px 20px',
@@ -400,21 +452,25 @@ const styles = {
   },
   header: { textAlign: 'center', marginBottom: '30px' },
   titleRow: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: 'grid',
+    gridTemplateColumns: '1fr auto 1fr',
     alignItems: 'center',
-    gap: '20px',
-    flexWrap: 'wrap'
+    marginBottom: '10px'
   },
   title: { fontSize: '2.2rem', color: '#1a365d', margin: 0 },
   langSelector: {
+    position:'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 10,
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
     backgroundColor: '#edf2f7',
     padding: '6px 12px',
     borderRadius: '8px',
-    border: '1px solid #cbd5e0'
+    border: '1px solid #cbd5e0',
+    justifySelf: 'end'
   },
   langLabel: { fontSize: '1.1rem' },
   selectInput: {
@@ -513,159 +569,3 @@ const styles = {
 };
 
 export default App;
-
-// function App() {
-//   const [workers, setWorkers] = useState([]);
-//   const [search, setSearch] = useState('');
-//   const [loading, setLoading] = useState(true);
-
-//   // Fetch workers from backend when the component mounts
-//   useEffect(() => {
-//     fetch('http://localhost:5000/api/workers')
-//       .then((res) => res.json())
-//       .then((data) => {
-//         setWorkers(data);
-//         setLoading(false);
-//       })
-//       .catch((err) => {
-//         console.error('Error fetching workers:', err);
-//         setLoading(false);
-//       });
-//   }, []);
-
-//   // Filter workers based on search input (name, job, or location)
-//   const filteredWorkers = workers.filter((worker) => {
-//     const term = search.toLowerCase();
-//     return (
-//       worker.name?.toLowerCase().includes(term) ||
-//       worker.job?.toLowerCase().includes(term) ||
-//       worker.location?.toLowerCase().includes(term)
-//     );
-//   });
-
-//   return (
-//     <div style={styles.container}>
-//       <header style={styles.header}>
-//         <h1 style={styles.title}>Wage Worker Directory</h1>
-//         <p style={styles.subtitle}>Find and hire daily wage professionals near you</p>
-//       </header>
-
-//       {/* Search Input */}
-//       <div style={styles.searchBox}>
-//         <input
-//           type="text"
-//           placeholder="Search by name, job (e.g. Plumber), or location..."
-//           value={search}
-//           onChange={(e) => setSearch(e.target.value)}
-//           style={styles.input}
-//         />
-//       </div>
-
-//       {/* Worker List */}
-//       {loading ? (
-//         <p style={styles.message}>Loading workers...</p>
-//       ) : filteredWorkers.length === 0 ? (
-//         <p style={styles.message}>No matching workers found.</p>
-//       ) : (
-//         <div style={styles.grid}>
-//           {filteredWorkers.map((worker) => (
-//             <div key={worker._id} style={styles.card}>
-//               <div style={styles.cardHeader}>
-//                 <h2 style={styles.name}>{worker.name}</h2>
-//                 <span style={styles.badge}>{worker.job}</span>
-//               </div>
-//               <div style={styles.cardBody}>
-//                 <p><strong>Daily Wage:</strong> ₹{worker.wage}</p>
-//                 <p><strong>Hours:</strong> {worker.hours}</p>
-//                 <p><strong>Location:</strong> {worker.location}</p>
-//                 {worker.phone && <p><strong>Phone:</strong> {worker.phone}</p>}
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // Inline styles for easy copy-pasting
-// const styles = {
-//   container: {
-//     maxWidth: '1000px',
-//     margin: '0 auto',
-//     padding: '30px 20px',
-//     fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-//     color: '#333'
-//   },
-//   header: {
-//     textAlign: 'center',
-//     marginBottom: '30px'
-//   },
-//   title: {
-//     fontSize: '2.2rem',
-//     color: '#1a365d',
-//     margin: '0 0 10px 0'
-//   },
-//   subtitle: {
-//     color: '#4a5568',
-//     margin: 0
-//   },
-//   searchBox: {
-//     marginBottom: '30px'
-//   },
-//   input: {
-//     width: '100%',
-//     padding: '14px 18px',
-//     fontSize: '1rem',
-//     borderRadius: '8px',
-//     border: '1px solid #cbd5e0',
-//     boxSizing: 'border-box',
-//     outline: 'none'
-//   },
-//   grid: {
-//     display: 'grid',
-//     gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-//     gap: '20px'
-//   },
-//   card: {
-//     backgroundColor: '#fff',
-//     borderRadius: '10px',
-//     border: '1px solid #e2e8f0',
-//     padding: '20px',
-//     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-//   },
-//   cardHeader: {
-//     display: 'flex',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: '15px',
-//     borderBottom: '1px solid #edf2f7',
-//     paddingBottom: '10px'
-//   },
-//   name: {
-//     fontSize: '1.25rem',
-//     margin: 0,
-//     color: '#2d3748'
-//   },
-//   badge: {
-//     backgroundColor: '#ebf8ff',
-//     color: '#2b6cb0',
-//     padding: '4px 10px',
-//     borderRadius: '12px',
-//     fontSize: '0.85rem',
-//     fontWeight: 'bold'
-//   },
-//   cardBody: {
-//     fontSize: '0.95rem',
-//     lineHeight: '1.6',
-//     color: '#4a5568'
-//   },
-//   message: {
-//     textAlign: 'center',
-//     fontSize: '1.1rem',
-//     color: '#718096',
-//     marginTop: '40px'
-//   }
-// };
-
-// export default App;
