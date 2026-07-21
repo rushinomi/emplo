@@ -59,7 +59,7 @@ const seedDB = async () => {
 
     // Insert sample workers
     await Worker.insertMany(sampleWorkers);
-    console.log('Successfully seeded 5 sample workers! 🎉');
+    console.log('Successfully seeded 5 sample workers!');
 
     process.exit();
   } catch (error) {
