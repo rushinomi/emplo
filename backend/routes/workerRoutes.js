@@ -23,13 +23,13 @@ router.post('/update-status', async (req, res) => {
       updateFields.location = loc;
       updateFields.isAvailable = loc.toLowerCase().includes('free');
     }
+const flexibleRegex = new RegExp(cleanPhone.split('').join('\\s*'), 'i');
 
-    const updatedWorker = await Worker.findOneAndUpdate(
-      { phone: { $regex: cleanPhone } },
-      { $set: updateFields },
-      { new: true }
-    );
-
+const updatedWorker = await Worker.findOneAndUpdate(
+  { phone: { $regex: flexibleRegex } },
+  { $set: updateFields },
+  { new: true }
+);
     if (!updatedWorker) {
       return res.status(404).json({ message: 'Worker not found with this phone number.' });
     }
