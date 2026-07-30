@@ -268,26 +268,34 @@ function App() {
 
   const handleStatusUpdate = (e) => {
     e.preventDefault();
-    setUpdateMsg('Updating...');
+  setUpdateMsg('Updating...');
 
-    fetch('https://backdata-4leh.onrender.com/api/workers/update-status', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateData)
+  fetch('https://backdata-4leh.onrender.com/api/workers/update-status', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updateData)
+  })
+    .then(async (res) => {
+      // Check if response is valid JSON before parsing
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update status.');
+        return data;
+      } else {
+        throw new Error('Server route not ready or returned non-JSON response.');
+      }
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setUpdateMsg(data.message);
-        if (data.worker) {
-          setUpdateData({ phone: '', location: '' });
-          fetchWorkers(); // Refresh workers list automatically
-        }
-      })
-      .catch((err) => {
-        console.error('Error updating status:', err);
-        setUpdateMsg('Failed to update status.');
-      });
-  };
+    .then((data) => {
+      setUpdateMsg(data.message || 'Status updated successfully!');
+      setUpdateData({ phone: '', location: '' });
+      fetchWorkers();
+    })
+    .catch((err) => {
+      console.error('Error updating status:', err);
+      setUpdateMsg(err.message || 'Failed to update status.');
+    });
+};
 
   const filteredWorkers = workers.filter((worker) => {
     const term = search.toLowerCase().trim();

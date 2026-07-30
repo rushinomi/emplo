@@ -1,20 +1,21 @@
 require('dotenv').config(); 
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
-// 1. Import DB connection, routes, and Worker model
+// 1. Import Worker model so findOneAndUpdate works
+const Worker = require('./models/Worker'); // Adjust path if your model is in a different folder
+
+// 2. Import DB connection and existing routes
 const connectDB = require('./config/db');
 const workerRoutes = require('./routes/workerRoutes');
-const Worker = require('./models/Worker'); // Ensure path matches your project layout
 
 const app = express();
 
-// 2. Connect Database
+// 3. Connect Database
 connectDB();
 
-// 3. Middleware
+// 4. Middleware (Configured once, enabling PATCH)
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
@@ -22,10 +23,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// 4. Base Routes
+// 5. Existing Routes
 app.use('/api/workers', workerRoutes);
 
-// 5. PATCH Route (Must be defined BEFORE app.listen)
+// 6. PATCH Route (MUST BE BEFORE app.listen)
 app.patch('/api/workers/update-status', async (req, res) => {
   const { phone, location } = req.body;
 
@@ -33,7 +34,7 @@ app.patch('/api/workers/update-status', async (req, res) => {
     return res.status(400).json({ message: 'Phone number is required.' });
   }
 
-  // Strip spaces and special characters for reliable matching
+  // Strip spaces and non-digit characters for reliable matching
   const cleanPhone = phone.replace(/\D/g, '');
 
   if (!cleanPhone) {
@@ -45,7 +46,7 @@ app.patch('/api/workers/update-status', async (req, res) => {
     if (location !== undefined && location !== '') {
       const loc = location.trim();
       updateFields.location = loc;
-      // Automatically set available to true if location includes "free"
+      // Automatically set isAvailable to true if location contains "free"
       updateFields.isAvailable = loc.toLowerCase().includes('free');
     }
 
@@ -66,6 +67,6 @@ app.patch('/api/workers/update-status', async (req, res) => {
   }
 });
 
-// 6. Start Server (Always keep at the very bottom)
+// 7. Start Server (ALWAYS AT THE VERY BOTTOM)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
