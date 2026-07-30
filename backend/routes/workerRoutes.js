@@ -48,4 +48,42 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/update-status', async (req, res) => {
+  const { phone, location } = req.body;
+
+  if (!phone) {
+    return res.status(400).json({ message: 'Phone number is required.' });
+  }
+
+  const cleanPhone = phone.replace(/\D/g, '');
+
+  if (!cleanPhone) {
+    return res.status(400).json({ message: 'Please enter a valid phone number.' });
+  }
+
+  try {
+    const updateFields = {};
+    if (location !== undefined && location !== '') {
+      const loc = location.trim();
+      updateFields.location = loc;
+      updateFields.isAvailable = loc.toLowerCase().includes('free');
+    }
+
+    const updatedWorker = await Worker.findOneAndUpdate(
+      { phone: { $regex: cleanPhone } },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedWorker) {
+      return res.status(404).json({ message: 'Worker not found with this phone number.' });
+    }
+
+    res.json({ message: 'Status and location updated successfully!', worker: updatedWorker });
+  } catch (error) {
+    console.error('Error updating worker:', error);
+    res.status(500).json({ message: 'Server error while updating status.' });
+  }
+});
+
 module.exports = router;

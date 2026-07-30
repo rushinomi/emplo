@@ -271,7 +271,7 @@ function App() {
   setUpdateMsg('Updating...');
 
   fetch('https://backdata-4leh.onrender.com/api/workers/update-status', {
-    method: 'PATCH',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updateData)
   })
